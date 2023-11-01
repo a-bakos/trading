@@ -13,6 +13,7 @@ enum PortfolioAsset {
     GOLD(f32),
     WTI(f32),
     UK100(f32),
+    MSFT(f32),
 }
 
 impl PortfolioAsset {
@@ -72,6 +73,16 @@ impl PortfolioAsset {
                     multiplier: Some(10.0),
                 }
             }
+            PortfolioAsset::MSFT(price) => {
+                Instrument {
+                    name: "Microsoft".to_string(),
+                    ticker: "MSFT.US".to_string(),
+                    asset_class: AssetClass::Stock,
+                    leverage: 5.0,
+                    price: price.clone(),
+                    multiplier: None,
+                }
+            }
         }
     }
 }
@@ -81,7 +92,6 @@ enum AssetClass {
     Commodity,
     #[allow(dead_code)]
     Forex,
-    #[allow(dead_code)]
     Stock,
 }
 
@@ -143,4 +153,7 @@ fn main() {
 
     let max_pos_oil = PortfolioAsset::WTI(82.56).calculate_max_position_size(account_size);
     println!("OIL: {:?}", max_pos_oil);
+
+    let max_pos_msft = PortfolioAsset::MSFT(345.44).calculate_max_position_size(account_size);
+    println!("MSFT: {:?}", max_pos_msft);
 }
