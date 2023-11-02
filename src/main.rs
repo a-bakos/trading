@@ -1,11 +1,59 @@
-use std::string::ToString;
+const GBPUSD: f32 = 1.234;
+const EURGBP: f32 = 1.234;
 
-/**
- * TODO:
- * CLI position size calculator
- * - max position
- *
- */
+struct Account {
+    base_currency: Currency,
+}
+
+impl Account {
+    // TODO
+    fn exchange_to_base(&self, asset_currency: Currency, asset_price: f32) -> f32 {
+        match asset_currency {
+            Currency::GBP => {
+                match self.base_currency {
+                    Currency::GBP => return asset_price,
+                    Currency::USD => {}
+                    Currency::EUR => {}
+                }
+            }
+            Currency::USD => {
+                match self.base_currency {
+                    Currency::GBP => {}
+                    Currency::USD => return asset_price,
+                    Currency::EUR => {}
+                }
+            }
+            Currency::EUR => {
+                match self.base_currency {
+                    Currency::GBP => {}
+                    Currency::USD => {}
+                    Currency::EUR => return asset_price,
+                }
+            }
+        }
+
+        0.0
+    }
+}
+
+enum AssetClass {
+    Index,
+    Commodity,
+    #[allow(dead_code)]
+    Forex,
+    Stock,
+}
+
+enum Currency {
+    GBP,
+    USD,
+    EUR,
+}
+
+enum TradeDirection {
+    Long,
+    Short,
+}
 
 enum PortfolioAsset {
     US500(f32),
@@ -30,7 +78,10 @@ impl PortfolioAsset {
                     asset_class: AssetClass::Index,
                     leverage: 20.0,
                     price: price.clone(),
+                    currency: Currency::USD,
                     multiplier: Some(50.0),
+                    swap_rate_short: None,
+                    swap_rate_long: Some(-0.025908),
                 }
             }
             PortfolioAsset::US100(price) => {
@@ -40,7 +91,10 @@ impl PortfolioAsset {
                     asset_class: AssetClass::Index,
                     leverage: 20.0,
                     price: price.clone(),
+                    currency: Currency::USD,
                     multiplier: Some(20.0),
+                    swap_rate_short: None,
+                    swap_rate_long: Some(-0.025908),
                 }
             }
             PortfolioAsset::GOLD(price) => {
@@ -50,7 +104,10 @@ impl PortfolioAsset {
                     asset_class: AssetClass::Commodity,
                     leverage: 20.0,
                     price: price.clone(),
+                    currency: Currency::USD,
                     multiplier: Some(100.0),
+                    swap_rate_short: None,
+                    swap_rate_long: Some(-0.028686),
                 }
             }
             PortfolioAsset::WTI(price) => {
@@ -60,7 +117,10 @@ impl PortfolioAsset {
                     asset_class: AssetClass::Commodity,
                     leverage: 10.0,
                     price: price.clone(),
+                    currency: Currency::USD,
                     multiplier: Some(1000.0),
+                    swap_rate_short: None,
+                    swap_rate_long: Some(-0.027297),
                 }
             }
             PortfolioAsset::UK100(price) => {
@@ -70,7 +130,10 @@ impl PortfolioAsset {
                     asset_class: AssetClass::Index,
                     leverage: 20.0,
                     price: price.clone(),
+                    currency: Currency::GBP,
                     multiplier: Some(10.0),
+                    swap_rate_short: None,
+                    swap_rate_long: Some(-0.026909),
                 }
             }
             PortfolioAsset::MSFT(price) => {
@@ -80,19 +143,14 @@ impl PortfolioAsset {
                     asset_class: AssetClass::Stock,
                     leverage: 5.0,
                     price: price.clone(),
+                    currency: Currency::USD,
                     multiplier: None,
+                    swap_rate_short: None,
+                    swap_rate_long: Some(-0.02722),
                 }
             }
         }
     }
-}
-
-enum AssetClass {
-    Index,
-    Commodity,
-    #[allow(dead_code)]
-    Forex,
-    Stock,
 }
 
 struct Instrument {
@@ -104,19 +162,35 @@ struct Instrument {
     asset_class: AssetClass,
     leverage: f32,
     price: f32,
+    currency: Currency,
     multiplier: Option<f32>,
+    swap_rate_short: Option<f32>,
+    swap_rate_long: Option<f32>,
 }
 
 impl Instrument {
     #[allow(dead_code)]
-    pub fn new(name: String, ticker: String, asset_class: AssetClass, leverage: f32, price: f32, multiplier: Option<f32>) -> Self {
+    pub fn new(
+        name: String,
+        ticker: String,
+        asset_class: AssetClass,
+        leverage: f32,
+        price: f32,
+        currency: Currency,
+        multiplier: Option<f32>,
+        swap_rate_short: Option<f32>,
+        swap_rate_long: Option<f32>,
+    ) -> Self {
         Self {
             name,
             ticker,
             asset_class,
             leverage,
             price,
+            currency,
             multiplier,
+            swap_rate_short,
+            swap_rate_long,
         }
     }
 
@@ -133,6 +207,40 @@ impl Instrument {
             Some(multiplier) => multiplier,
             None => 1.0
         })
+    }
+
+    // TODO
+    // WIP: Calculation of daily swap points/overnight financing charge or credit
+    fn calculate_swap_points(&self, trade_direction: TradeDirection, lots_number: f32) -> f32 {
+        // FX:
+        // 100_000 * lots number * daily swap rate % * conversion rate of account currency
+
+        // Other instruments - such as indices
+        // Instrument price * multiplier (used to calculate nominal value of 1 lot) * lots number * swap rate % * conversion rate of account currency
+
+        let swap_rate = match trade_direction {
+            TradeDirection::Long => self.swap_rate_long,
+            TradeDirection::Short => self.swap_rate_short,
+        };
+        let swap_rate = if let Some(the_swap_rate) = swap_rate {
+            the_swap_rate
+        } else {
+            1.0
+        };
+        let multiplier = if let Some(the_multiplier) = self.multiplier {
+            the_multiplier
+        } else {
+            1.0
+        };
+
+        let conversion_rate = 1.0;
+
+        let swap = self.price * multiplier * lots_number * swap_rate * conversion_rate;
+
+        // Stocks CFD
+        // transaction nominal * swap rate % * 1/360 * conversion rate of account currency
+
+        0.0
     }
 }
 
