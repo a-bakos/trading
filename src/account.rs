@@ -1,13 +1,13 @@
 use crate::Currency;
 
 pub struct Account {
-    pub balance: f32,
+    pub balance: f64,
     pub base_currency: Currency,
 }
 
 impl Account {
     // TODO
-    pub fn exchange_to_base(&self, asset_currency: Currency, asset_price: f32) -> f32 {
+    pub fn exchange_to_base(&self, asset_currency: Currency, asset_price: f64) -> f64 {
         match asset_currency {
             Currency::GBP => {
                 match self.base_currency {
@@ -35,7 +35,7 @@ impl Account {
         0.0
     }
 
-    pub fn exchange_from_base(&self, asset_price: f32) -> (f32, Currency) {
+    pub fn exchange_from_base(&self, asset_price: f64) -> (f64, Currency) {
         todo!()
     }
 }

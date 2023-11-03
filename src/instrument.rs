@@ -5,12 +5,12 @@ pub struct Instrument {
     pub name: String,
     pub ticker: String,
     pub asset_class: AssetClass,
-    pub leverage: f32,
-    pub price: f32,
+    pub leverage: f64,
+    pub price: f64,
     pub currency: Currency,
-    pub multiplier: Option<f32>,
-    pub swap_rate_short: Option<f32>,
-    pub swap_rate_long: Option<f32>,
+    pub multiplier: Option<f64>,
+    pub swap_rate_short: Option<f64>,
+    pub swap_rate_long: Option<f64>,
 }
 
 impl Instrument {
@@ -19,12 +19,12 @@ impl Instrument {
         name: String,
         ticker: String,
         asset_class: AssetClass,
-        leverage: f32,
-        price: f32,
+        leverage: f64,
+        price: f64,
         currency: Currency,
-        multiplier: Option<f32>,
-        swap_rate_short: Option<f32>,
-        swap_rate_long: Option<f32>,
+        multiplier: Option<f64>,
+        swap_rate_short: Option<f64>,
+        swap_rate_long: Option<f64>,
     ) -> Self {
         Self {
             name,
@@ -39,15 +39,15 @@ impl Instrument {
         }
     }
 
-    pub fn calculate_max_position_size(&self, account_size: f32) -> f32 {
+    pub fn calculate_max_position_size(&self, account_size: f64) -> f64 {
         self.get_levered_amount(account_size) / self.get_nominal_value_of_one_lot()
     }
 
-    fn get_levered_amount(&self, account_size: f32) -> f32 {
+    fn get_levered_amount(&self, account_size: f64) -> f64 {
         self.leverage * account_size
     }
 
-    fn get_nominal_value_of_one_lot(&self) -> f32 {
+    fn get_nominal_value_of_one_lot(&self) -> f64 {
         self.price * (match self.multiplier {
             Some(multiplier) => multiplier,
             None => 1.0
@@ -56,7 +56,7 @@ impl Instrument {
 
     // TODO
     // WIP: Calculation of daily swap points/overnight financing charge or credit
-    fn calculate_swap_points(&self, trade_direction: TradeDirection, lots_number: f32) -> f32 {
+    fn calculate_swap_points(&self, trade_direction: TradeDirection, lots_number: f64) -> f64 {
         // FX:
         // 100_000 * lots number * daily swap rate % * conversion rate of account currency
 

@@ -4,16 +4,16 @@ use crate::{
 };
 
 pub enum PortfolioAsset {
-    US500(f32),
-    US100(f32),
-    GOLD(f32),
-    WTI(f32),
-    UK100(f32),
-    MSFT(f32),
+    US500(f64),
+    US100(f64),
+    GOLD(f64),
+    WTI(f64),
+    UK100(f64),
+    MSFT(f64),
 }
 
 impl PortfolioAsset {
-    pub fn calculate_max_position_size(&self, account_size: f32) -> f32 {
+    pub fn calculate_max_position_size(&self, account_size: f64) -> f64 {
         self.details().calculate_max_position_size(account_size)
     }
 

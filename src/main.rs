@@ -7,8 +7,8 @@ use crate::{
     portfolio_asset::PortfolioAsset,
 };
 
-const GBPUSD: f32 = 1.234;
-const EURGBP: f32 = 1.234;
+const GBPUSD: f64 = 1.234;
+const EURGBP: f64 = 1.234;
 
 pub enum AssetClass {
     Index,
