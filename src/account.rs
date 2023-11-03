@@ -34,4 +34,8 @@ impl Account {
 
         0.0
     }
+
+    pub fn exchange_from_base(&self, asset_price: f32) -> (f32, Currency) {
+        todo!()
+    }
 }

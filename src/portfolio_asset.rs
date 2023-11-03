@@ -1,5 +1,7 @@
-use crate::{AssetClass, Currency};
-use crate::instrument::Instrument;
+use crate::{
+    AssetClass, Currency,
+    instrument::Instrument,
+};
 
 pub enum PortfolioAsset {
     US500(f32),
